@@ -4,7 +4,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { AuthError } from "@supabase/supabase-js";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { Alert, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Pressable, Text, View } from "react-native";
 
 const Register = () => {
   const router = useRouter();
@@ -15,16 +15,17 @@ const Register = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const [error, setError] = useState<AuthError | null>(null);
+  const [matchPassword, setMatchPassword] = useState<boolean | null>(null);
 
   const isDisabled = loading || !email || !password || !confirmPassword;
-
-  console.log(error);
 
   const signUpWithEmail = async () => {
     setLoading(true);
 
     if (password !== confirmPassword) {
       console.log("Pass doesnt match");
+      setMatchPassword(false);
+      setLoading(false);
       return;
     }
 
@@ -100,9 +101,15 @@ const Register = () => {
           error={undefined}
         />
 
+        {matchPassword === false && (
+          <Text style={{ color: "red", fontSize: 10 }}>
+            Lozinke se ne poklapaju. Probajte ponovo.
+          </Text>
+        )}
+
         <Pressable
           style={{
-            backgroundColor: "#d1d1d1",
+            backgroundColor: isDisabled ? "#d1d1d1" : "#fff",
             flexDirection: "row",
             gap: 10,
             justifyContent: "center",
@@ -111,9 +118,14 @@ const Register = () => {
             paddingVertical: 18,
             marginTop: 20,
           }}
+          disabled={isDisabled}
           onPress={() => signUpWithEmail()}
         >
-          <Text>Register</Text>
+          {loading ? (
+            <ActivityIndicator color="#000" size={17} />
+          ) : (
+            <Text>Register</Text>
+          )}
         </Pressable>
       </View>
 
@@ -160,7 +172,7 @@ const Register = () => {
       <Pressable onPress={() => router.back()}>
         <Text>
           Have an account?{" "}
-          <Text style={{ color: "blue", fontWeight: "bold" }}>Login here</Text>
+          <Text style={{ color: "black", fontWeight: "bold" }}>Login here</Text>
         </Text>
       </Pressable>
     </View>

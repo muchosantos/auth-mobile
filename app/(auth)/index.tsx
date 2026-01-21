@@ -4,7 +4,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { AuthError } from "@supabase/supabase-js";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { ActivityIndicator, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Pressable, Text, View } from "react-native";
 
 const TestAuth = () => {
   const router = useRouter();
@@ -14,10 +14,18 @@ const TestAuth = () => {
 
   const [error, setError] = useState<AuthError | null>(null);
 
-  const isDisabled = loading || !email || !password;
 
   // login
   const signInWithEmail = async () => {
+
+    // prva provera je inputi
+    if (email.trim() === '' || password.trim() === '') {
+      Alert.alert("Enter email and password");
+      return;
+    }
+    
+
+
     setLoading(true);
 
     try {
@@ -29,7 +37,7 @@ const TestAuth = () => {
       if (error) setError(error); // netacan pass ili email
       else router.replace("/(tabs)"); // ide samo ako nema greške
     } catch (err) {
-      console.log('Network ili..', err); // network ili neočekivana greška
+      console.log("Network ili..", err); // network ili neočekivana greška
     } finally {
       setLoading(false);
     }
@@ -71,13 +79,11 @@ const TestAuth = () => {
           error={undefined}
         />
 
-        {error && (
-          <Text style={{color:"red", fontSize:10}}>Neispravni podaci. Pokusajte opet.</Text>
-        )}
+  
 
         <Pressable
           style={{
-            backgroundColor: isDisabled ? "#d1d1d1" : "#fff",
+            backgroundColor: "#fff",
             flexDirection: "row",
             gap: 10,
             justifyContent: "center",
@@ -87,7 +93,6 @@ const TestAuth = () => {
             marginTop: 20,
           }}
           onPress={() => signInWithEmail()}
-          disabled={isDisabled}
         >
           {loading ? (
             <ActivityIndicator color="#000" size={17} />
@@ -118,7 +123,7 @@ const TestAuth = () => {
           }}
         >
           <AntDesign name="google" color={"white"} size={30} />
-          <Text style={{color:"white"}}>Continue with Google</Text>
+          <Text style={{ color: "white" }}>Continue with Google</Text>
         </Pressable>
 
         <Pressable
@@ -137,14 +142,20 @@ const TestAuth = () => {
         </Pressable>
       </View>
 
-      <Pressable onPress={() => router.push("/(auth)/register")}>
-        <Text>
-          Dont have an account?{" "}
-          <Text style={{ color: "blue", fontWeight: "bold" }}>
-            Register here
-          </Text>
-        </Text>
-      </Pressable>
+      <View style={{ paddingHorizontal: 20, width: "100%" }}>
+        <Pressable
+          onPress={() => router.push("/(auth)/register")}
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            borderWidth: 1,
+            paddingVertical: 10,
+            borderRadius: 20,
+          }}
+        >
+          <Text>Create new account</Text>
+        </Pressable>
+      </View>
     </View>
   );
 };
