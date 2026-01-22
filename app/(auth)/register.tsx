@@ -1,7 +1,8 @@
+import CustomAlert from "@/components/CustomModal";
 import FormInput from "@/components/FormInput";
 import { supabase } from "@/lib/supabase";
 import { AntDesign } from "@expo/vector-icons";
-import { AuthError } from "@supabase/supabase-js";
+
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { ActivityIndicator, Alert, Pressable, Text, View } from "react-native";
@@ -15,20 +16,34 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [error, setError] = useState<AuthError | null>(null);
-  const [matchPassword, setMatchPassword] = useState<boolean | null>(null);
-
-  const isDisabled = loading || !email || !password || !confirmPassword;
+  const [showAlert1, setShowAlert1] = useState<boolean>(false);
+  const [showAlert2, setShowAlert2] = useState<boolean>(false);
+  const [showAlert3, setShowAlert3] = useState<boolean>(false);
+  const [showAlert4, setShowAlert4] = useState<boolean>(false);
+  const [showAlert5, setShowAlert5] = useState<boolean>(false);
 
   const signUpWithEmail = async () => {
-    setLoading(true);
-
-    if (password !== confirmPassword) {
-      console.log("Pass doesnt match");
-      setMatchPassword(false);
-      setLoading(false);
+    if (email.trim() === "") {
+      setShowAlert1(true);
       return;
     }
+
+    if (password.trim() === "") {
+      setShowAlert2(true);
+      return;
+    }
+
+    if (confirmPassword.trim() === "") {
+      setShowAlert4(true);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setShowAlert3(true);
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const {
@@ -40,12 +55,13 @@ const Register = () => {
       });
 
       if (error) {
-        setError(error);
+        setShowAlert5(true); // netacan pass ili email
         return; // prekida dalje izvršavanje ako postoji greška
       }
 
       router.replace("/(tabs)");
 
+      // ovo je za later - deep linking.
       if (!session) {
         Alert.alert("Please check your inbox for email verification!");
       }
@@ -61,9 +77,95 @@ const Register = () => {
       style={{
         height: "100%",
         backgroundColor: "#121212",
-        justifyContent:'center'
+        justifyContent: "center",
       }}
     >
+      <CustomAlert
+        visible={showAlert1}
+        title="Enter your credentials"
+        message="Enter your email address to create an account"
+        buttons={[
+          {
+            text: "Try again",
+            onPress: () => setShowAlert1(false),
+            backgroundColor: "#4285F4",
+          },
+        ]}
+        layout="vertical"
+      />
+
+      <CustomAlert
+        visible={showAlert2}
+        title="Enter your password"
+        message="You didn't enter a password. Please enter your password."
+        buttons={[
+          {
+            text: "Try again",
+            onPress: () => {
+              setShowAlert2(false);
+            },
+            backgroundColor: "#4285F4",
+          },
+        ]}
+        layout="horizontal"
+      />
+
+      <CustomAlert
+        visible={showAlert3}
+        title="Passwords doesn't match"
+        message="Your passwords doesn't match. Please try again."
+        buttons={[
+          {
+            text: "Try again",
+            onPress: () => {
+              setShowAlert3(false);
+            },
+            backgroundColor: "#4285F4",
+          },
+        ]}
+        layout="horizontal"
+      />
+
+      <CustomAlert
+        visible={showAlert4}
+        title="Please confirm your password"
+        message="Enter the same password to confirm registration."
+        buttons={[
+          {
+            text: "Try again",
+            onPress: () => {
+              setShowAlert4(false);
+            },
+            backgroundColor: "#4285F4",
+          },
+        ]}
+        layout="horizontal"
+      />
+
+      <CustomAlert
+        visible={showAlert5}
+        title="User already exist!"
+        message="User with this email already exist."
+        buttons={[
+          {
+            text: "Ok",
+            onPress: () => {
+              setShowAlert5(false);
+            },
+            backgroundColor: "#4285F4",
+          },
+          {
+            text: "Login to your account",
+            onPress: () => {
+              setShowAlert5(false);
+              router.push("/(auth)");
+            },
+            backgroundColor: "#8D8D8D",
+          },
+        ]}
+        layout="vertical"
+      />
+
       {/* title */}
       <View style={{ marginBottom: 50, paddingHorizontal: 20 }}>
         <Text
@@ -134,7 +236,7 @@ const Register = () => {
           onPress={() => signUpWithEmail()}
         >
           {loading ? (
-            <ActivityIndicator color="#fff" size={14} />
+            <ActivityIndicator color="black" size={17} />
           ) : (
             <Text style={{ fontSize: 14, color: "#000" }}>Sign in</Text>
           )}

@@ -1,9 +1,10 @@
+import CustomAlert from "@/components/CustomModal";
 import FormInput from "@/components/FormInput";
+import { supabase } from "@/lib/supabase";
 import { AntDesign } from "@expo/vector-icons";
-import { AuthError } from "@supabase/supabase-js";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { ActivityIndicator, Alert, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const TestAuth = () => {
@@ -12,31 +13,42 @@ const TestAuth = () => {
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [error, setError] = useState<AuthError | null>(null);
+  // const [error, setError] = useState<AuthError | null>(null);
+
+  const [showAlert1, setShowAlert1] = useState<boolean>(false);
+  const [showAlert2, setShowAlert2] = useState<boolean>(false);
+  const [showAlert3, setShowAlert3] = useState<boolean>(false);
 
   // login
   const signInWithEmail = async () => {
     // prva provera je inputi
-    if (email.trim() === "" || password.trim() === "") {
-      Alert.alert("Enter email and password");
+    if (email.trim() === "") {
+      setShowAlert1(true);
       return;
     }
 
-    // setLoading(true);
+    if (password.trim() === "") {
+      setShowAlert3(true);
+      return;
+    }
 
-    // try {
-    //   const { error } = await supabase.auth.signInWithPassword({
-    //     email: email,
-    //     password: password,
-    //   });
+    setLoading(true);
 
-    //   if (error) setError(error); // netacan pass ili email
-    //   else router.replace("/(tabs)"); // ide samo ako nema greške
-    // } catch (err) {
-    //   console.log("Network ili..", err); // network ili neočekivana greška
-    // } finally {
-    //   setLoading(false);
-    // }
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+
+      if (error) {
+        setShowAlert2(true); // netacan pass ili email
+        return;
+      } else router.replace("/(tabs)"); // ide samo ako nema greške
+    } catch (err) {
+      console.log("Network ili..", err); // network ili neočekivana greška
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -47,6 +59,68 @@ const TestAuth = () => {
         justifyContent: "center",
       }}
     >
+      <CustomAlert
+        visible={showAlert1}
+        title="Enter your credentials"
+        message="Enter your username, email address or mobile number to log in"
+        buttons={[
+          {
+            text: "OK",
+            onPress: () => setShowAlert1(false),
+            backgroundColor: "#4285F4",
+          },
+          {
+            text: "Create new account",
+            onPress: () => {
+              setShowAlert1(false);
+              router.push("/(auth)/register");
+            },
+            backgroundColor: "#8D8D8D",
+          },
+        ]}
+        layout="vertical"
+      />
+
+      <CustomAlert
+        visible={showAlert2}
+        title="Email or password incorrect"
+        message="We can't find an account with this email or your password is not correct. Try again or if you don't have an account, you can sign up"
+        buttons={[
+          {
+            text: "Sign up",
+            onPress: () => {
+              setShowAlert2(false);
+              router.push("/(auth)/register");
+            },
+            backgroundColor: "#4285F4",
+          },
+          {
+            text: "Try again",
+            onPress: () => {
+              setShowAlert2(false);
+            },
+            backgroundColor: "#8D8D8D",
+          },
+        ]}
+        layout="horizontal"
+      />
+
+      <CustomAlert
+        visible={showAlert3}
+        title="Enter your password"
+        message="You didn't enter a password. Please enter your password."
+        buttons={[
+          {
+            text: "Ok",
+            onPress: () => {
+              setShowAlert3(false);
+            },
+            backgroundColor: "#4285F4",
+          },
+        ]}
+        layout="horizontal"
+      />
+
       {/* title */}
       <View style={{ marginBottom: 50, paddingHorizontal: 20 }}>
         <Text
@@ -95,7 +169,7 @@ const TestAuth = () => {
         />
 
         <View>
-          <Pressable onPress={() => router.push('/(auth)/forgot-password')}>
+          <Pressable onPress={() => router.push("/(auth)/forgot-password")}>
             <Text
               style={{
                 color: "#ABABAB",
@@ -124,7 +198,7 @@ const TestAuth = () => {
           onPress={() => signInWithEmail()}
         >
           {loading ? (
-            <ActivityIndicator color="#fff" size={14} />
+            <ActivityIndicator color="black" size={17} />
           ) : (
             <Text style={{ fontSize: 14, color: "#000" }}>Sign in</Text>
           )}

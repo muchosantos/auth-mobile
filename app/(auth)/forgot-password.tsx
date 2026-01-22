@@ -1,23 +1,39 @@
+import CustomAlert from "@/components/CustomModal";
 import FormInput from "@/components/FormInput";
+import { supabase } from "@/lib/supabase";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import * as Linking from "expo-linking";
+
 const ForgotPassword = () => {
   const [email, setEmail] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  const router = useRouter()
+  const router = useRouter();
+
+  const [showAlert1, setShowAlert1] = useState<boolean>(false);
+  const [showAlert2, setShowAlert2] = useState<boolean>(false);
+
+  const redirectUrl = Linking.createURL("create-new-password");
 
   const handleForgotPassword = async () => {
-    setLoading(true)
+    if (email.trim() === "") {
+      setShowAlert1(true);
+      return;
+    }
 
-    router.push('/(auth)/verify-email')
+    setLoading(true);
 
-    setLoading(false)
-  }
+    await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: redirectUrl,
+    });
+
+    setLoading(false);
+  };
   return (
     <SafeAreaView
       style={{
@@ -25,7 +41,21 @@ const ForgotPassword = () => {
         backgroundColor: "#121212",
       }}
     >
-      <View style={{paddingHorizontal:20}}>
+      <CustomAlert
+        visible={showAlert1}
+        title="Enter your email"
+        message="Enter your email address to recover your password."
+        buttons={[
+          {
+            text: "Try again",
+            onPress: () => setShowAlert1(false),
+            backgroundColor: "#4285F4",
+          },
+        ]}
+        layout="vertical"
+      />
+
+      <View style={{ paddingHorizontal: 20 }}>
         <Pressable onPress={() => router.back()}>
           <MaterialIcons name="arrow-back-ios" size={24} color="white" />
         </Pressable>
