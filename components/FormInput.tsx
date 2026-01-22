@@ -1,95 +1,73 @@
-import { useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { AntDesign } from "@expo/vector-icons";
+import React, { useState } from "react";
+import { Pressable, Text, TextInput, View } from "react-native";
 
-type FormInputProps = {
-  label?: string;
+type FormInputType = "email" | "password";
+
+interface FormInputProps {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
-  secureTextEntry?: boolean;
-  keyboardType?: "default" | "email-address";
-  error?: string;
-};
+  type?: FormInputType;
+}
 
-export function FormInput({
-  label,
+const FormInput: React.FC<FormInputProps> = ({
   value,
   onChangeText,
   placeholder,
-  secureTextEntry = false,
-  keyboardType = "default",
-  error,
-}: FormInputProps) {
-  const [hidden, setHidden] = useState(secureTextEntry);
+  type = "email",
+}) => {
+  const [isFocused, setIsFocused] = useState<boolean>(false);
+  const [secure, setSecure] = useState<boolean>(type === "password");
 
   return (
-    <View style={styles.container}>
-      {label && <Text style={styles.label}>{label}</Text>}
+    <View
+      style={{
+        borderWidth: 1,
+        borderColor: isFocused ? "#ABABAB" : "#1A1A1A",
+        borderRadius: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 12,
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#1A1A1A",
+      }}
+    >
+      <TextInput
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        secureTextEntry={secure}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        style={{
+          flex: 1,
+          fontSize: 14,
+          color:"#fff"
+        }}
+        placeholderTextColor="#ABABAB"
+      />
 
-      <View style={[styles.inputWrapper, error && styles.inputError]}>
-        <TextInput
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
-          placeholderTextColor="#999"
-          secureTextEntry={hidden}
-          keyboardType={keyboardType}
-          autoCapitalize="none"
-          style={styles.input}
-        />
+      {/* ICONS — samo kad je fokus */}
+      {isFocused && type === "email" && value.length > 0 && (
+        <Pressable onPress={() => onChangeText("")}>
+          <AntDesign name="close" size={16} color="#ABABAB" />
+        </Pressable>
+      )}
 
-        {secureTextEntry && (
-          <TouchableOpacity onPress={() => setHidden(!hidden)}>
-            <Text style={styles.toggle}>{hidden ? "Show" : "Hide"}</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {isFocused && type === "password" && (
+        <Pressable onPress={() => setSecure((prev) => !prev)}>
+          <Text style={{ fontSize: 18 }}>
+            {secure ? (
+              <AntDesign name="eye" size={16} color="#ABABAB" />
+            ) : (
+              <AntDesign name="eye-invisible" size={16} color="#ABABAB" />
+            )}
+          </Text>
+        </Pressable>
+      )}
     </View>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    width:"100%",
-    marginBottom: 16,
-  },
-  label: {
-    marginBottom: 6,
-    color: "#333",
-    fontSize: 14,
-  },
-  inputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    backgroundColor: "#fff",
-  },
-  input: {
-    flex: 1,
-    height: 48,
-    fontSize: 16,
-  },
-  toggle: {
-    color: "#007AFF",
-    fontWeight: "500",
-  },
-  inputError: {
-    borderColor: "#ff3b30",
-  },
-  errorText: {
-    color: "#ff3b30",
-    marginTop: 4,
-    fontSize: 12,
-  },
-});
+export default FormInput;

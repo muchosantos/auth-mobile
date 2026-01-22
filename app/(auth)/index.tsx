@@ -1,10 +1,10 @@
-import { FormInput } from "@/components/FormInput";
-import { supabase } from "@/lib/supabase";
+import FormInput from "@/components/FormInput";
 import { AntDesign } from "@expo/vector-icons";
 import { AuthError } from "@supabase/supabase-js";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { ActivityIndicator, Alert, Pressable, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const TestAuth = () => {
   const router = useRouter();
@@ -14,73 +14,103 @@ const TestAuth = () => {
 
   const [error, setError] = useState<AuthError | null>(null);
 
-
   // login
   const signInWithEmail = async () => {
-
     // prva provera je inputi
-    if (email.trim() === '' || password.trim() === '') {
+    if (email.trim() === "" || password.trim() === "") {
       Alert.alert("Enter email and password");
       return;
     }
-    
 
+    // setLoading(true);
 
-    setLoading(true);
+    // try {
+    //   const { error } = await supabase.auth.signInWithPassword({
+    //     email: email,
+    //     password: password,
+    //   });
 
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
-      });
-
-      if (error) setError(error); // netacan pass ili email
-      else router.replace("/(tabs)"); // ide samo ako nema greške
-    } catch (err) {
-      console.log("Network ili..", err); // network ili neočekivana greška
-    } finally {
-      setLoading(false);
-    }
+    //   if (error) setError(error); // netacan pass ili email
+    //   else router.replace("/(tabs)"); // ide samo ako nema greške
+    // } catch (err) {
+    //   console.log("Network ili..", err); // network ili neočekivana greška
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   return (
-    <View
+    <SafeAreaView
       style={{
         height: "100%",
+        backgroundColor: "#121212",
         justifyContent: "center",
-        alignItems: "center",
       }}
     >
-      <View style={{ marginBottom: 50 }}>
-        <Text style={{ fontSize: 40, textAlign: "center" }}>
-          Welcome to Login
+      {/* title */}
+      <View style={{ marginBottom: 50, paddingHorizontal: 20 }}>
+        <Text
+          style={{
+            fontSize: 45,
+            textAlign: "left",
+            color: "#fff",
+            fontWeight: "bold",
+          }}
+        >
+          Hey,
         </Text>
-        <Text style={{ fontSize: 10, textAlign: "center" }}>
-          This is testing of Supabase SDK and Supabase Auth.
+        <Text
+          style={{
+            fontSize: 45,
+            textAlign: "left",
+            color: "#fff",
+            fontWeight: "bold",
+          }}
+        >
+          Welcome back
         </Text>
       </View>
 
       {/* email i password input */}
-      <View style={{ paddingHorizontal: 20, width: "100%", marginBottom: 50 }}>
+      <View
+        style={{
+          paddingHorizontal: 20,
+          width: "100%",
+          marginBottom: 30,
+          gap: 20,
+        }}
+      >
         <FormInput
-          label="Email"
-          placeholder="Enter email"
+          placeholder="Email"
           value={email}
           onChangeText={setEmail}
-          keyboardType="email-address"
+          type="email"
         />
 
         <FormInput
-          label="Password"
-          placeholder="Enter password"
+          placeholder="Password"
           value={password}
           onChangeText={setPassword}
-          secureTextEntry
-          error={undefined}
+          type="password"
         />
 
-  
+        <View>
+          <Pressable onPress={() => router.push('/(auth)/forgot-password')}>
+            <Text
+              style={{
+                color: "#ABABAB",
+                textAlign: "center",
+                fontWeight: "600",
+              }}
+            >
+              Forgot password?
+            </Text>
+          </Pressable>
+        </View>
+      </View>
 
+      {/* Signin Btn */}
+      <View style={{ paddingHorizontal: 20 }}>
         <Pressable
           style={{
             backgroundColor: "#fff",
@@ -89,17 +119,44 @@ const TestAuth = () => {
             justifyContent: "center",
             alignItems: "center",
             borderRadius: 20,
-            paddingVertical: 18,
-            marginTop: 20,
+            paddingVertical: 12,
           }}
           onPress={() => signInWithEmail()}
         >
           {loading ? (
-            <ActivityIndicator color="#000" size={17} />
+            <ActivityIndicator color="#fff" size={14} />
           ) : (
-            <Text>Login</Text>
+            <Text style={{ fontSize: 14, color: "#000" }}>Sign in</Text>
           )}
         </Pressable>
+      </View>
+
+      {/* Or */}
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          marginVertical: 30,
+          paddingHorizontal: 20,
+        }}
+      >
+        {/* Left line */}
+        <View style={{ flex: 1, height: 1, backgroundColor: "#ABABAB" }} />
+
+        {/* Text */}
+        <Text
+          style={{
+            color: "#ABABAB",
+            textAlign: "center",
+            fontWeight: "600",
+            marginHorizontal: 10, // prostor između linija i teksta
+          }}
+        >
+          Or
+        </Text>
+
+        {/* Right line */}
+        <View style={{ flex: 1, height: 1, backgroundColor: "#ABABAB" }} />
       </View>
 
       {/* oauth providers */}
@@ -113,7 +170,7 @@ const TestAuth = () => {
       >
         <Pressable
           style={{
-            backgroundColor: "#4285F4",
+            backgroundColor: "#1A1A1A",
             flexDirection: "row",
             gap: 10,
             justifyContent: "center",
@@ -128,7 +185,7 @@ const TestAuth = () => {
 
         <Pressable
           style={{
-            backgroundColor: "#0a1a1a",
+            backgroundColor: "#1A1A1A",
             flexDirection: "row",
             gap: 10,
             justifyContent: "center",
@@ -148,15 +205,17 @@ const TestAuth = () => {
           style={{
             justifyContent: "center",
             alignItems: "center",
-            borderWidth: 1,
             paddingVertical: 10,
             borderRadius: 20,
           }}
         >
-          <Text>Create new account</Text>
+          <Text style={{ color: "#ABABAB" }}>
+            Dont have an account?{" "}
+            <Text style={{ color: "#fff", fontWeight: "600" }}>Sign up</Text>
+          </Text>
         </Pressable>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
