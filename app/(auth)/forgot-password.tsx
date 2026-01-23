@@ -1,4 +1,3 @@
-import CustomAlert from "@/components/CustomModal";
 import FormInput from "@/components/FormInput";
 import { supabase } from "@/lib/supabase";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -7,30 +6,63 @@ import React, { useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { showAlert } from "@/store/alertSlice";
+import { makeRedirectUri } from "expo-auth-session";
+import * as QueryParams from "expo-auth-session/build/QueryParams";
 import * as Linking from "expo-linking";
+import * as WebBrowser from "expo-web-browser";
+import { useDispatch } from "react-redux";
+
+WebBrowser.maybeCompleteAuthSession();
+const redirectTo = makeRedirectUri();
+
+const createSessionFromUrl = async (url: string) => {
+  const { params, errorCode } = QueryParams.getQueryParams(url);
+  if (errorCode) throw new Error(errorCode);
+  const { access_token, refresh_token } = params;
+  if (!access_token) return;
+  const { data, error } = await supabase.auth.setSession({
+    access_token,
+    refresh_token,
+  });
+  if (error) throw error;
+  return data.session;
+};
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
   const router = useRouter();
+  const dispatch = useDispatch();
 
-  const [showAlert1, setShowAlert1] = useState<boolean>(false);
-  const [showAlert2, setShowAlert2] = useState<boolean>(false);
-
-  const redirectUrl = Linking.createURL("create-new-password");
+  const url = Linking.useLinkingURL();
+  if (url) createSessionFromUrl(url);
 
   const handleForgotPassword = async () => {
     if (email.trim() === "") {
-      setShowAlert1(true);
+      dispatch(
+        showAlert({
+          title: "Enter your email",
+          message: "Enter your email address to recover your password.",
+          buttons: [
+            {
+              text: "Try again",
+              onPress: () => {},
+              backgroundColor: "#4285F4",
+            },
+          ],
+          layout: "vertical" as const,
+        })
+      );
       return;
     }
 
     setLoading(true);
 
-    await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: redirectUrl,
-    });
+    // await supabase.auth.resetPasswordForEmail(email, {
+    //   redirectTo: redirectUrl,
+    // });
 
     setLoading(false);
   };
@@ -41,20 +73,6 @@ const ForgotPassword = () => {
         backgroundColor: "#121212",
       }}
     >
-      <CustomAlert
-        visible={showAlert1}
-        title="Enter your email"
-        message="Enter your email address to recover your password."
-        buttons={[
-          {
-            text: "Try again",
-            onPress: () => setShowAlert1(false),
-            backgroundColor: "#4285F4",
-          },
-        ]}
-        layout="vertical"
-      />
-
       <View style={{ paddingHorizontal: 20 }}>
         <Pressable onPress={() => router.back()}>
           <MaterialIcons name="arrow-back-ios" size={24} color="white" />
@@ -111,7 +129,7 @@ const ForgotPassword = () => {
           onPress={() => handleForgotPassword()}
         >
           {loading ? (
-            <ActivityIndicator color="#fff" size={14} />
+            <ActivityIndicator color="black" size={17} />
           ) : (
             <Text style={{ fontSize: 14, color: "#000" }}>Send</Text>
           )}

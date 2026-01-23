@@ -1,12 +1,13 @@
-import CustomAlert from "@/components/CustomModal";
 import FormInput from "@/components/FormInput";
 import { supabase } from "@/lib/supabase";
+import { showAlert, showPredefinedAlert } from "@/store/alertSlice";
 import { AntDesign } from "@expo/vector-icons";
 
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { ActivityIndicator, Alert, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useDispatch } from "react-redux";
 
 const Register = () => {
   const router = useRouter();
@@ -16,30 +17,47 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [showAlert1, setShowAlert1] = useState<boolean>(false);
-  const [showAlert2, setShowAlert2] = useState<boolean>(false);
-  const [showAlert3, setShowAlert3] = useState<boolean>(false);
-  const [showAlert4, setShowAlert4] = useState<boolean>(false);
-  const [showAlert5, setShowAlert5] = useState<boolean>(false);
+  const dispatch = useDispatch();
 
   const signUpWithEmail = async () => {
     if (email.trim() === "") {
-      setShowAlert1(true);
+      dispatch(
+        showAlert({
+          title: "Enter your credentials",
+          message: "Enter your email address to create an account.",
+          buttons: [
+            {
+              text: "OK",
+              onPress: () => {},
+              backgroundColor: "#4285F4",
+            },
+          ],
+          layout: "vertical" as const,
+        })
+      );
       return;
     }
 
     if (password.trim() === "") {
-      setShowAlert2(true);
+      dispatch(showPredefinedAlert("ENTER_PASSWORD"));
+      return;
+    }
+
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasNumber = /\d/.test(password);
+
+    if (password.length < 6 || !hasUpperCase || !hasNumber) {
+      dispatch(showPredefinedAlert("WEAK_PASSWORD"));
       return;
     }
 
     if (confirmPassword.trim() === "") {
-      setShowAlert4(true);
+      dispatch(showPredefinedAlert("CONFIRM_PASSWORD"));
       return;
     }
 
     if (password !== confirmPassword) {
-      setShowAlert3(true);
+      dispatch(showPredefinedAlert("MATCH_PASSWORDS"));
       return;
     }
 
@@ -55,7 +73,7 @@ const Register = () => {
       });
 
       if (error) {
-        setShowAlert5(true); // netacan pass ili email
+        dispatch(showPredefinedAlert("ACCOUNT_EXIST"));
         return; // prekida dalje izvršavanje ako postoji greška
       }
 
@@ -80,92 +98,6 @@ const Register = () => {
         justifyContent: "center",
       }}
     >
-      <CustomAlert
-        visible={showAlert1}
-        title="Enter your credentials"
-        message="Enter your email address to create an account"
-        buttons={[
-          {
-            text: "Try again",
-            onPress: () => setShowAlert1(false),
-            backgroundColor: "#4285F4",
-          },
-        ]}
-        layout="vertical"
-      />
-
-      <CustomAlert
-        visible={showAlert2}
-        title="Enter your password"
-        message="You didn't enter a password. Please enter your password."
-        buttons={[
-          {
-            text: "Try again",
-            onPress: () => {
-              setShowAlert2(false);
-            },
-            backgroundColor: "#4285F4",
-          },
-        ]}
-        layout="horizontal"
-      />
-
-      <CustomAlert
-        visible={showAlert3}
-        title="Passwords doesn't match"
-        message="Your passwords doesn't match. Please try again."
-        buttons={[
-          {
-            text: "Try again",
-            onPress: () => {
-              setShowAlert3(false);
-            },
-            backgroundColor: "#4285F4",
-          },
-        ]}
-        layout="horizontal"
-      />
-
-      <CustomAlert
-        visible={showAlert4}
-        title="Please confirm your password"
-        message="Enter the same password to confirm registration."
-        buttons={[
-          {
-            text: "Try again",
-            onPress: () => {
-              setShowAlert4(false);
-            },
-            backgroundColor: "#4285F4",
-          },
-        ]}
-        layout="horizontal"
-      />
-
-      <CustomAlert
-        visible={showAlert5}
-        title="User already exist!"
-        message="User with this email already exist."
-        buttons={[
-          {
-            text: "Ok",
-            onPress: () => {
-              setShowAlert5(false);
-            },
-            backgroundColor: "#4285F4",
-          },
-          {
-            text: "Login to your account",
-            onPress: () => {
-              setShowAlert5(false);
-              router.push("/(auth)");
-            },
-            backgroundColor: "#8D8D8D",
-          },
-        ]}
-        layout="vertical"
-      />
-
       {/* title */}
       <View style={{ marginBottom: 50, paddingHorizontal: 20 }}>
         <Text
@@ -238,7 +170,7 @@ const Register = () => {
           {loading ? (
             <ActivityIndicator color="black" size={17} />
           ) : (
-            <Text style={{ fontSize: 14, color: "#000" }}>Sign in</Text>
+            <Text style={{ fontSize: 14, color: "#000" }}>Sign up</Text>
           )}
         </Pressable>
       </View>
@@ -313,7 +245,10 @@ const Register = () => {
 
       <View style={{ paddingHorizontal: 20, width: "100%" }}>
         <Pressable
-          onPress={() => router.push("/(auth)")}
+          onPress={() => {
+            router.push("/(auth)");
+            // reset state
+          }}
           style={{
             justifyContent: "center",
             alignItems: "center",

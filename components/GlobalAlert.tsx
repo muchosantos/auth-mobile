@@ -1,30 +1,17 @@
+import { hideAlert } from "@/store/alertSlice";
+import { RootState } from "@/store/store";
 import React from "react";
-import { Modal, Pressable, Text, TextStyle, View, ViewStyle } from "react-native";
+import { Modal, Pressable, Text, View } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 
-interface AlertButton {
-  text: string;
-  onPress: () => void;
-  backgroundColor?: string;
-  textColor?: string;
-  style?: ViewStyle;
-  textStyle?: TextStyle;
-}
 
-interface CustomAlertProps {
-  visible: boolean;
-  title: string;
-  message: string;
-  buttons?: AlertButton[];
-  layout?: "vertical" | "horizontal"; // kako će dugmad biti raspoređena
-}
 
-const CustomAlert: React.FC<CustomAlertProps> = ({
-  visible,
-  title,
-  message,
-  buttons = [{ text: "OK", onPress: () => {} }],
-  layout = "vertical",
-}) => {
+const GlobalAlert: React.FC = () => {
+  const dispatch = useDispatch();
+  const { visible, title, message, buttons, layout } = useSelector(
+    (state: RootState) => state.alert
+  );
+
   return (
     <Modal transparent animationType="fade" visible={visible}>
       <View
@@ -43,7 +30,6 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
             padding: 20,
           }}
         >
-          {/* Title & Message */}
           <View>
             <Text style={{ color: "#fff", fontSize: 18, fontWeight: "600" }}>
               {title}
@@ -51,7 +37,6 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
             <Text style={{ color: "#aaa", marginTop: 10 }}>{message}</Text>
           </View>
 
-          {/* Buttons */}
           <View
             style={{
               flexDirection: layout === "horizontal" ? "row" : "column",
@@ -63,7 +48,10 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
             {buttons.map((btn, index) => (
               <Pressable
                 key={index}
-                onPress={btn.onPress}
+                onPress={() => {
+                  dispatch(hideAlert());
+                  btn.onPress();
+                }}
                 style={{
                   flex: layout === "horizontal" ? 1 : undefined,
                   backgroundColor: btn.backgroundColor ?? "#4285F4",
@@ -93,4 +81,4 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
   );
 };
 
-export default CustomAlert;
+export default GlobalAlert;
