@@ -3,8 +3,18 @@ import { supabase } from "@/lib/supabase";
 import { showPredefinedAlert } from "@/store/alertSlice";
 import { AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
 import React, { useState } from "react";
-import { ActivityIndicator, Pressable, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch } from "react-redux";
 
@@ -45,184 +55,215 @@ const TestAuth = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: "authmobile://", // Mora da se poklapa sa "scheme"
+      },
+    });
+
+    if (error) {
+      console.error("Error:", error);
+      return;
+    }
+
+    const result = await WebBrowser.openAuthSessionAsync(
+      data.url,
+      "authmobile://" // Isti scheme
+    );
+  };
+
   return (
-    <SafeAreaView
-      style={{
-        height: "100%",
-        backgroundColor: "#121212",
-        justifyContent: "center",
-      }}
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: "#121212", justifyContent: "center" }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={-50}
     >
+      <TouchableWithoutFeedback>
+        <SafeAreaView style={{}}>
+          <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
+            {/* title */}
+            <View style={{ marginBottom: 50, paddingHorizontal: 20 }}>
+              <Text
+                style={{
+                  fontSize: 45,
+                  textAlign: "left",
+                  color: "#fff",
+                  fontWeight: "bold",
+                }}
+              >
+                Hey,
+              </Text>
+              <Text
+                style={{
+                  fontSize: 45,
+                  textAlign: "left",
+                  color: "#fff",
+                  fontWeight: "bold",
+                }}
+              >
+                Welcome back
+              </Text>
+            </View>
 
-      {/* title */}
-      <View style={{ marginBottom: 50, paddingHorizontal: 20 }}>
-        <Text
-          style={{
-            fontSize: 45,
-            textAlign: "left",
-            color: "#fff",
-            fontWeight: "bold",
-          }}
-        >
-          Hey,
-        </Text>
-        <Text
-          style={{
-            fontSize: 45,
-            textAlign: "left",
-            color: "#fff",
-            fontWeight: "bold",
-          }}
-        >
-          Welcome back
-        </Text>
-      </View>
-
-      {/* email i password input */}
-      <View
-        style={{
-          paddingHorizontal: 20,
-          width: "100%",
-          marginBottom: 30,
-          gap: 20,
-        }}
-      >
-        <FormInput
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          type="email"
-        />
-
-        <FormInput
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          type="password"
-        />
-
-        <View>
-          <Pressable onPress={() => router.push("/(auth)/forgot-password")}>
-            <Text
+            {/* email i password input */}
+            <View
               style={{
-                color: "#ABABAB",
-                textAlign: "center",
-                fontWeight: "600",
+                paddingHorizontal: 20,
+                width: "100%",
+                marginBottom: 30,
+                gap: 20,
               }}
             >
-              Forgot password?
-            </Text>
-          </Pressable>
-        </View>
-      </View>
+              <FormInput
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+                type="email"
+              />
 
-      {/* Signin Btn */}
-      <View style={{ paddingHorizontal: 20 }}>
-        <Pressable
-          style={{
-            backgroundColor: "#fff",
-            flexDirection: "row",
-            gap: 10,
-            justifyContent: "center",
-            alignItems: "center",
-            borderRadius: 20,
-            paddingVertical: 12,
-          }}
-          onPress={() => signInWithEmail()}
-        >
-          {loading ? (
-            <ActivityIndicator color="black" size={17} />
-          ) : (
-            <Text style={{ fontSize: 14, color: "#000" }}>Sign in</Text>
-          )}
-        </Pressable>
-      </View>
+              <FormInput
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
+                type="password"
+              />
 
-      {/* Or */}
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          marginVertical: 30,
-          paddingHorizontal: 20,
-        }}
-      >
-        {/* Left line */}
-        <View style={{ flex: 1, height: 1, backgroundColor: "#ABABAB" }} />
+              <View>
+                <Pressable
+                  onPress={() => router.push("/(auth)/forgot-password")}
+                >
+                  <Text
+                    style={{
+                      color: "#ABABAB",
+                      textAlign: "center",
+                      fontWeight: "600",
+                    }}
+                  >
+                    Forgot password?
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
 
-        {/* Text */}
-        <Text
-          style={{
-            color: "#ABABAB",
-            textAlign: "center",
-            fontWeight: "600",
-            marginHorizontal: 10, // prostor između linija i teksta
-          }}
-        >
-          Or
-        </Text>
+            {/* Signin Btn */}
+            <View style={{ paddingHorizontal: 20 }}>
+              <Pressable
+                style={{
+                  backgroundColor: "#fff",
+                  flexDirection: "row",
+                  gap: 10,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderRadius: 20,
+                  paddingVertical: 12,
+                }}
+                onPress={() => signInWithEmail()}
+              >
+                {loading ? (
+                  <ActivityIndicator color="black" size={17} />
+                ) : (
+                  <Text style={{ fontSize: 14, color: "#000" }}>Sign in</Text>
+                )}
+              </Pressable>
+            </View>
 
-        {/* Right line */}
-        <View style={{ flex: 1, height: 1, backgroundColor: "#ABABAB" }} />
-      </View>
+            {/* Or */}
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginVertical: 30,
+                paddingHorizontal: 20,
+              }}
+            >
+              {/* Left line */}
+              <View
+                style={{ flex: 1, height: 1, backgroundColor: "#ABABAB" }}
+              />
 
-      {/* oauth providers */}
-      <View
-        style={{
-          paddingHorizontal: 20,
-          width: "100%",
-          gap: 10,
-          marginBottom: 50,
-        }}
-      >
-        <Pressable
-          style={{
-            backgroundColor: "#1A1A1A",
-            flexDirection: "row",
-            gap: 10,
-            justifyContent: "center",
-            alignItems: "center",
-            borderRadius: 20,
-            paddingVertical: 10,
-          }}
-        >
-          <AntDesign name="google" color={"white"} size={30} />
-          <Text style={{ color: "white" }}>Continue with Google</Text>
-        </Pressable>
+              {/* Text */}
+              <Text
+                style={{
+                  color: "#ABABAB",
+                  textAlign: "center",
+                  fontWeight: "600",
+                  marginHorizontal: 10, // prostor između linija i teksta
+                }}
+              >
+                Or
+              </Text>
 
-        <Pressable
-          style={{
-            backgroundColor: "#1A1A1A",
-            flexDirection: "row",
-            gap: 10,
-            justifyContent: "center",
-            alignItems: "center",
-            borderRadius: 20,
-            paddingVertical: 10,
-          }}
-        >
-          <AntDesign name="apple" color={"white"} size={30} />
-          <Text style={{ color: "#fff" }}>Continue with Apple</Text>
-        </Pressable>
-      </View>
+              {/* Right line */}
+              <View
+                style={{ flex: 1, height: 1, backgroundColor: "#ABABAB" }}
+              />
+            </View>
 
-      <View style={{ paddingHorizontal: 20, width: "100%" }}>
-        <Pressable
-          onPress={() => router.push("/(auth)/register")}
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-            paddingVertical: 10,
-            borderRadius: 20,
-          }}
-        >
-          <Text style={{ color: "#ABABAB" }}>
-            Dont have an account?{" "}
-            <Text style={{ color: "#fff", fontWeight: "600" }}>Sign up</Text>
-          </Text>
-        </Pressable>
-      </View>
-    </SafeAreaView>
+            {/* oauth providers */}
+            <View
+              style={{
+                paddingHorizontal: 20,
+                width: "100%",
+                gap: 10,
+                marginBottom: 50,
+              }}
+            >
+              <Pressable
+                style={{
+                  backgroundColor: "#1A1A1A",
+                  flexDirection: "row",
+                  gap: 10,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderRadius: 20,
+                  paddingVertical: 10,
+                }}
+                onPress={() => handleGoogleSignIn()}
+              >
+                <AntDesign name="google" color={"white"} size={30} />
+                <Text style={{ color: "white" }}>Continue with Google</Text>
+              </Pressable>
+
+              <Pressable
+                style={{
+                  backgroundColor: "#1A1A1A",
+                  flexDirection: "row",
+                  gap: 10,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderRadius: 20,
+                  paddingVertical: 10,
+                }}
+              >
+                <AntDesign name="apple" color={"white"} size={30} />
+                <Text style={{ color: "#fff" }}>Continue with Apple</Text>
+              </Pressable>
+            </View>
+
+            <View style={{ paddingHorizontal: 20, width: "100%" }}>
+              <Pressable
+                onPress={() => router.push("/(auth)/register")}
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  paddingVertical: 10,
+                  borderRadius: 20,
+                }}
+              >
+                <Text style={{ color: "#ABABAB" }}>
+                  Dont have an account?{" "}
+                  <Text style={{ color: "#fff", fontWeight: "600" }}>
+                    Sign up
+                  </Text>
+                </Text>
+              </Pressable>
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 

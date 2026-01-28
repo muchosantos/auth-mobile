@@ -1,17 +1,19 @@
 {
   "expo": {
-    "name": "auth-mobile",
-    "slug": "auth-mobile",
+    "name": "Authmobile",
+    "slug": "authmobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "com.authmobile",
+    "scheme": "authmobile",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "bundleIdentifier": "com.scope.authmobile",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.scope.authmobile",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
