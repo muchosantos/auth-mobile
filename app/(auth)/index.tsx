@@ -3,7 +3,6 @@ import { supabase } from "@/lib/supabase";
 import { showPredefinedAlert } from "@/store/alertSlice";
 import { AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import * as WebBrowser from "expo-web-browser";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -56,22 +55,7 @@ const TestAuth = () => {
   };
 
   const handleGoogleSignIn = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: "authmobile://", // Mora da se poklapa sa "scheme"
-      },
-    });
-
-    if (error) {
-      console.error("Error:", error);
-      return;
-    }
-
-    const result = await WebBrowser.openAuthSessionAsync(
-      data.url,
-      "authmobile://" // Isti scheme
-    );
+    console.log("google");
   };
 
   return (
