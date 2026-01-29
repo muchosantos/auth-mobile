@@ -1,7 +1,15 @@
+import { useSupabaseUser } from "@/hooks/useSupabaseUser";
 import { FontAwesome5, Octicons } from "@expo/vector-icons";
-import { Tabs } from "expo-router";
+import { Redirect, Tabs } from "expo-router";
 
 export default function TabsRoutesLayout() {
+  const { user, loading } = useSupabaseUser();
+
+  if (loading) return null;
+
+  if (!user) {
+    return <Redirect href="/(auth)" />;
+  }
   return (
     <Tabs>
       <Tabs.Screen
