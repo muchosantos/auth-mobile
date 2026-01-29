@@ -9,6 +9,8 @@ export default function AuthRoutesLayout() {
       <Stack.Screen name="forgot-password" options={{ headerShown: false }} />
       <Stack.Screen name="verify-email" options={{ headerShown: false }} />
       <Stack.Screen name="create-new-password" options={{ headerShown: false }} />
+      <Stack.Screen name="login-password" options={{ headerShown: false }} />
+      <Stack.Screen name="register-password" options={{ headerShown: false }} />
     </Stack>
   );
 }

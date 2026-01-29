@@ -6,8 +6,8 @@ import "react-native-reanimated";
 
 import GlobalAlert from "@/components/GlobalAlert";
 import { store } from "@/store/store";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import { Provider } from "react-redux";
-
 // export const unstable_settings = {
 //   anchor: "(tabs)",
 // };
@@ -34,9 +34,11 @@ export default function RootLayout() {
 
   return (
     <Provider store={store}>
-      <Slot />
-      <GlobalAlert /> 
-      <StatusBar style="auto" />
+      <KeyboardProvider>
+        <Slot />
+        <GlobalAlert />
+        <StatusBar style="auto" />
+      </KeyboardProvider>
     </Provider>
   );
 }

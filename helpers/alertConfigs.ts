@@ -4,12 +4,16 @@ export type AlertConfigKey =
   | "ENTER_CREDENTIALS"
   | "ENTER_PASSWORD"
   | "INCORRECT_CREDENTIALS"
+  | "INCORRECT_EMAIL"
+  | "INCORRECT_PASSWORD"
   | "WEAK_PASSWORD"
   | "CONFIRM_PASSWORD"
   | "MATCH_PASSWORDS"
-  | "ACCOUNT_EXIST";
+  | "ACCOUNT_EXIST"
+  | "SOMETHING_WENT_WRONG"
 
 export const alertConfigs = {
+  // login
   ENTER_CREDENTIALS: {
     title: "Enter your credentials",
     message: "Enter your username or email address to log in",
@@ -61,6 +65,39 @@ export const alertConfigs = {
     ],
     layout: "horizontal" as const,
   },
+  INCORRECT_EMAIL: {
+    title: "Incorrect email",
+    message:
+      "The email you entered is incorrect. Please try again, or sign up if you don’t have an account.",
+    buttons: [
+      {
+        text: "Sign up",
+        onPress: () => {
+          router.push("/(auth)/register");
+        },
+        backgroundColor: "#4285F4",
+      },
+      {
+        text: "Try again",
+        onPress: () => {},
+        backgroundColor: "#8D8D8D",
+      },
+    ],
+    layout: "horizontal" as const,
+  },
+  INCORRECT_PASSWORD: {
+    title: "Incorrect password",
+    message: "The password you entered is incorrect. Please try again.",
+    buttons: [
+      {
+        text: "Try again",
+        onPress: () => {},
+        backgroundColor: "#4285F4",
+      },
+    ],
+    layout: "horizontal" as const,
+  },
+  // registration
   WEAK_PASSWORD: {
     title: "Password too weak",
     message:
@@ -117,5 +154,18 @@ export const alertConfigs = {
       },
     ],
     layout: "vertical" as const,
+  },
+  SOMETHING_WENT_WRONG: {
+    title: "Something went wrong",
+    message:
+      "Check your internet connection and try again.",
+    buttons: [
+      {
+        text: "OK",
+        onPress: () => {},
+        backgroundColor: "#4285F4",
+      },
+    ],
+    layout: "horizontal" as const,
   },
 };
