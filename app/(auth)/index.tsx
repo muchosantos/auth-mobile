@@ -10,6 +10,21 @@ import { supabase } from "@/lib/supabase";
 import { showPredefinedAlert } from "@/store/alertSlice";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
+import {
+  GoogleSignin,
+  isErrorWithCode,
+  isSuccessResponse,
+  statusCodes,
+} from "@react-native-google-signin/google-signin";
+
+GoogleSignin.configure({
+  webClientId:
+    "724696297512-i9hs5vt88ncb2gkj258m0n0k84l2elm9.apps.googleusercontent.com",
+  iosClientId:
+    "724696297512-aiqaoioro0khah83mp4ssiji4kqh8oa1.apps.googleusercontent.com",
+  
+});
+
 const TestAuth = () => {
   const router = useRouter();
   const [email, setEmail] = useState<string>("");
@@ -21,31 +36,30 @@ const TestAuth = () => {
       dispatch(showPredefinedAlert("ENTER_CREDENTIALS"));
       return;
     }
-  
+
     setLoading(true);
-  
+
     const { data, error } = await supabase
       .from("profiles")
       .select("email")
       .eq("email", email.trim().toLowerCase())
       .maybeSingle();
-  
+
     setLoading(false);
 
-  
     // DB error (network, RLS, query fail)
     if (error) {
       console.log(error);
       dispatch(showPredefinedAlert("SOMETHING_WENT_WRONG"));
       return;
     }
-  
+
     // Email NE postoji
     if (!data) {
       dispatch(showPredefinedAlert("INCORRECT_EMAIL"));
       return;
     }
-  
+
     // Email postoji
     router.push({
       pathname: "/(auth)/login-password",
@@ -54,7 +68,36 @@ const TestAuth = () => {
   };
 
   const handleGoogleSignIn = async () => {
-    console.log("google");
+    try {
+      await GoogleSignin.hasPlayServices();
+      const response = await GoogleSignin.signIn();
+
+      if (isSuccessResponse(response)) {
+        // set state - supabase
+        console.log(response);
+      } else {
+        // baci svoj alert
+        console.log("canceled by user u - if else");
+      }
+    } catch (error) {
+      console.log(error);
+
+      if (isErrorWithCode(error)) {
+        switch (error.code) {
+          case statusCodes.IN_PROGRESS:
+            // operation (eg. sign in) already in progress
+            break;
+          case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+            // Android only, play services not available or outdated
+            break;
+          default:
+          // some other error happened
+        }
+      } else {
+        // an error that's not related to google sign in occurred
+        console.log("server greska - nema veze sa google sign in");
+      }
+    }
   };
 
   return (
