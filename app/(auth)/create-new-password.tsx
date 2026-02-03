@@ -1,17 +1,72 @@
-import { MaterialIcons } from "@expo/vector-icons";
+import FormInput from "@/components/FormInput";
+import { supabase } from "@/lib/supabase";
+import { showPredefinedAlert } from "@/store/alertSlice";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useDispatch } from "react-redux";
+
 
 const CreateNewPassword = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const router = useRouter()
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const dispatch = useDispatch();
+  const router = useRouter();
 
-  
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      console.log('Current session:', data.session); // Da vidimo šta se dešava
+    };
+    checkSession();
+  }, []);
+
+ 
+
   const createNewPassword = async () => {
-    router.replace('/(auth)')
-  }
+    if (!password.trim()) {
+      dispatch(showPredefinedAlert("ENTER_PASSWORD"));
+      return;
+    }
+
+    if (
+      password.length < 6 ||
+      !/[A-Z]/.test(password) ||
+      !/\d/.test(password)
+    ) {
+      dispatch(showPredefinedAlert("WEAK_PASSWORD"));
+      return;
+    }
+
+    if (!confirmPassword.trim()) {
+      dispatch(showPredefinedAlert("CONFIRM_PASSWORD"));
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      dispatch(showPredefinedAlert("MATCH_PASSWORDS"));
+      return;
+    }
+
+    setLoading(true);
+
+    const { error } = await supabase.auth.updateUser({
+      password,
+    });
+
+    console.log(error);
+
+    setLoading(false);
+
+    if (error) {
+      dispatch(showPredefinedAlert("SOMETHING_WENT_WRONG"));
+      return;
+    }
+    await supabase.auth.signOut();
+    router.replace("/(auth)");
+  };
 
   return (
     <SafeAreaView
@@ -20,11 +75,11 @@ const CreateNewPassword = () => {
         backgroundColor: "#121212",
       }}
     >
-      <View style={{ paddingHorizontal: 20 }}>
+      {/* <View style={{ paddingHorizontal: 20 }}>
         <Pressable onPress={() => router.back()}>
           <MaterialIcons name="arrow-back-ios" size={24} color="white" />
         </Pressable>
-      </View>
+      </View> */}
 
       <View style={{ marginBottom: 50, paddingHorizontal: 20, marginTop: 50 }}>
         <Text
@@ -53,6 +108,29 @@ const CreateNewPassword = () => {
         <Text style={{ color: "#ABABAB", fontSize: 18, marginBottom: 30 }}>
           Your new password must be different from the previous one.
         </Text>
+      </View>
+
+      <View
+        style={{
+          paddingHorizontal: 20,
+          width: "100%",
+          marginBottom: 30,
+          gap: 20,
+        }}
+      >
+        <FormInput
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          type="password"
+        />
+
+        <FormInput
+          placeholder="Confrim password"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          type="password"
+        />
       </View>
 
       <View style={{ paddingHorizontal: 20, marginTop: 30 }}>

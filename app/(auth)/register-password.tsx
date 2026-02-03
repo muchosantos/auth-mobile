@@ -8,28 +8,7 @@ import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch } from "react-redux";
 
-// if (password.trim() === "") {
-//   dispatch(showPredefinedAlert("ENTER_PASSWORD"));
-//   return;
-// }
 
-// const hasUpperCase = /[A-Z]/.test(password);
-// const hasNumber = /\d/.test(password);
-
-// if (password.length < 6 || !hasUpperCase || !hasNumber) {
-//   dispatch(showPredefinedAlert("WEAK_PASSWORD"));
-//   return;
-// }
-
-// if (confirmPassword.trim() === "") {
-//   dispatch(showPredefinedAlert("CONFIRM_PASSWORD"));
-//   return;
-// }
-
-// if (password !== confirmPassword) {
-//   dispatch(showPredefinedAlert("MATCH_PASSWORDS"));
-//   return;
-// }
 
 const RegisterPassword = () => {
   const [password, setPassword] = useState<string>("");

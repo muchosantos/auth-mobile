@@ -8,26 +8,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { showAlert } from "@/store/alertSlice";
 import { makeRedirectUri } from "expo-auth-session";
-import * as QueryParams from "expo-auth-session/build/QueryParams";
-import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
 import { useDispatch } from "react-redux";
 
 WebBrowser.maybeCompleteAuthSession();
 const redirectTo = makeRedirectUri();
-
-const createSessionFromUrl = async (url: string) => {
-  const { params, errorCode } = QueryParams.getQueryParams(url);
-  if (errorCode) throw new Error(errorCode);
-  const { access_token, refresh_token } = params;
-  if (!access_token) return;
-  const { data, error } = await supabase.auth.setSession({
-    access_token,
-    refresh_token,
-  });
-  if (error) throw error;
-  return data.session;
-};
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState<string>("");
@@ -35,9 +20,6 @@ const ForgotPassword = () => {
 
   const router = useRouter();
   const dispatch = useDispatch();
-
-  const url = Linking.useLinkingURL();
-  if (url) createSessionFromUrl(url);
 
   const handleForgotPassword = async () => {
     if (email.trim() === "") {
@@ -58,13 +40,32 @@ const ForgotPassword = () => {
       return;
     }
 
+
     setLoading(true);
 
-    // await supabase.auth.resetPasswordForEmail(email, {
-    //   redirectTo: redirectUrl,
-    // });
-
+    // pa provera da li postoji taj na bazi prvo
+    await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${redirectTo}(auth)/create-new-password`,
+    });
     setLoading(false);
+
+
+
+    // check your email alert
+    dispatch(
+      showAlert({
+        title: "Check your email",
+        message: "We’ve sent you a password reset link. Open your email and follow the instructions to create a new password.",
+        buttons: [
+          {
+            text: "Close",
+            onPress: () => {},
+            backgroundColor: "#4285F4",
+          },
+        ],
+        layout: "vertical" as const,
+      })
+    );
   };
   return (
     <SafeAreaView

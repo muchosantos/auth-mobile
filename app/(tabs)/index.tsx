@@ -1,32 +1,29 @@
+import TopHeader from "@/components/TopHeader";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, Text } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 
 const Home = () => {
-  const router = useRouter()
+  const router = useRouter();
   const signOut = async () => {
-    supabase.auth.signOut()
-    router.replace('/(auth)')
-  }
+    supabase.auth.signOut();
+    router.replace("/(auth)");
+  };
+
 
   return (
-    <View
+    <SafeAreaView
       style={{
         height: "100%",
         justifyContent: "center",
         alignItems: "center",
-        paddingHorizontal:20,
+        paddingHorizontal: 20,
       }}
     >
-      <View style={{ marginBottom: 50 }}>
-        <Text style={{ fontSize: 40, textAlign: "center" }}>
-          Welcome to Auth Test
-        </Text>
-        <Text style={{ fontSize: 10, textAlign: "center" }}>
-          You are now authenticated.
-        </Text>
-      </View>
+      <TopHeader />
 
       <Pressable
         style={{
@@ -39,13 +36,13 @@ const Home = () => {
           borderRadius: 20,
           paddingVertical: 18,
           marginTop: 20,
-          width:'100%'
+          width: "100%",
         }}
         onPress={() => signOut()}
       >
         <Text>Logout</Text>
       </Pressable>
-    </View>
+    </SafeAreaView>
   );
 };
 
