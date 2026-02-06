@@ -36,7 +36,7 @@ const LoginPassword = () => {
       return;
     }
 
-    router.replace("/(tabs)");
+    router.replace("/(home)/tabs");
     setLoading(false);
   };
 

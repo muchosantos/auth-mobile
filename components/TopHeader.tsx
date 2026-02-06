@@ -31,7 +31,7 @@ const TopHeader = () => {
           Authentication.
         </Text>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('/(home)/menu')}>
           <AntDesign name="menu" size={20} color={"white"} />
         </TouchableOpacity>
       </View>

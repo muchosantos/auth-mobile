@@ -40,26 +40,26 @@ const ForgotPassword = () => {
       return;
     }
 
-
     setLoading(true);
 
     // pa provera da li postoji taj na bazi prvo
     await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${redirectTo}(auth)/create-new-password`,
+      redirectTo: `${redirectTo}(public)/create-new-password`,
     });
     setLoading(false);
-
-
 
     // check your email alert
     dispatch(
       showAlert({
         title: "Check your email",
-        message: "We’ve sent you a password reset link. Open your email and follow the instructions to create a new password.",
+        message:
+          "We’ve sent you a password reset link. Open your email and follow the instructions to create a new password.",
         buttons: [
           {
             text: "Close",
-            onPress: () => {},
+            onPress: () => {
+              router.replace("/(auth)");
+            },
             backgroundColor: "#4285F4",
           },
         ],

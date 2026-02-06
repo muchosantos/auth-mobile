@@ -1,12 +1,26 @@
 import FormInput from "@/components/FormInput";
 import { supabase } from "@/lib/supabase";
 import { showPredefinedAlert } from "@/store/alertSlice";
+import * as QueryParams from "expo-auth-session/build/QueryParams";
+import * as Linking from "expo-linking";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch } from "react-redux";
 
+const createSessionFromUrl = async (url: string) => {
+  const { params, errorCode } = QueryParams.getQueryParams(url);
+  if (errorCode) throw new Error(errorCode);
+  const { access_token, refresh_token } = params;
+  if (!access_token) return;
+  const { data, error } = await supabase.auth.setSession({
+    access_token,
+    refresh_token,
+  });
+  if (error) throw error;
+  return data.session;
+};
 
 const CreateNewPassword = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -16,14 +30,11 @@ const CreateNewPassword = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      console.log('Current session:', data.session); // Da vidimo šta se dešava
-    };
-    checkSession();
+    const url = Linking.getLinkingURL();
+    if (url) {
+      createSessionFromUrl(url);
+    }
   }, []);
-
- 
 
   const createNewPassword = async () => {
     if (!password.trim()) {
@@ -56,16 +67,16 @@ const CreateNewPassword = () => {
       password,
     });
 
-    console.log(error);
-
-    setLoading(false);
+    if (!error) {
+      dispatch(showPredefinedAlert("PASSWORD_CHANGED_SUCCESS"));
+      return;
+    }
 
     if (error) {
       dispatch(showPredefinedAlert("SOMETHING_WENT_WRONG"));
       return;
     }
-    await supabase.auth.signOut();
-    router.replace("/(auth)");
+    setLoading(false);
   };
 
   return (
@@ -147,7 +158,7 @@ const CreateNewPassword = () => {
           onPress={() => createNewPassword()}
         >
           {loading ? (
-            <ActivityIndicator color="#fff" size={14} />
+            <ActivityIndicator color="#000" size={17} />
           ) : (
             <Text style={{ fontSize: 14, color: "#000" }}>Save</Text>
           )}

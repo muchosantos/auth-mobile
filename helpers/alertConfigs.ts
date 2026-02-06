@@ -1,3 +1,5 @@
+import { supabase } from "@/lib/supabase";
+import * as Linking from "expo-linking";
 import { router } from "expo-router";
 
 export type AlertConfigKey =
@@ -11,6 +13,7 @@ export type AlertConfigKey =
   | "MATCH_PASSWORDS"
   | "ACCOUNT_EXIST"
   | "SOMETHING_WENT_WRONG"
+  | "PASSWORD_CHANGED_SUCCESS";
 
 export const alertConfigs = {
   // login
@@ -157,12 +160,28 @@ export const alertConfigs = {
   },
   SOMETHING_WENT_WRONG: {
     title: "Something went wrong",
-    message:
-      "Check your internet connection and try again.",
+    message: "Check your internet connection and try again.",
     buttons: [
       {
         text: "OK",
         onPress: () => {},
+        backgroundColor: "#4285F4",
+      },
+    ],
+    layout: "horizontal" as const,
+  },
+  // Password change
+  PASSWORD_CHANGED_SUCCESS: {
+    title: "Password changed successfully",
+    message: "You can now login with your new password",
+    buttons: [
+      {
+        text: "Login",
+        onPress: async () => {
+          await supabase.auth.signOut();
+          // router.replace("/(auth)");
+          Linking.openURL("authmobile://(auth)");
+        },
         backgroundColor: "#4285F4",
       },
     ],

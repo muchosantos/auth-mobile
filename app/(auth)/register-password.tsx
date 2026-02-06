@@ -58,7 +58,7 @@ const RegisterPassword = () => {
       return;
     }
   
-    router.replace("/(tabs)");
+    router.replace("/(home)/tabs");
   };
 
   return (

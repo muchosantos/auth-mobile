@@ -24,6 +24,7 @@ GoogleSignin.configure({
     "724696297512-aiqaoioro0khah83mp4ssiji4kqh8oa1.apps.googleusercontent.com",
 });
 
+
 const TestAuth = () => {
   const router = useRouter();
   const [email, setEmail] = useState<string>("");
@@ -66,6 +67,7 @@ const TestAuth = () => {
     });
   };
 
+  // Native Google Sign In
   const handleGoogleSignIn = async () => {
     try {
       await GoogleSignin.hasPlayServices();
@@ -79,7 +81,6 @@ const TestAuth = () => {
           provider: "google",
           token: idToken ?? "",
         });
-
       } else {
         // baci svoj alert
         console.log("canceled by user u - if else");
@@ -104,6 +105,7 @@ const TestAuth = () => {
       }
     }
   };
+
 
   return (
     <KeyboardAwareScrollView
