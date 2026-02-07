@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 export function useSupabaseUser() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {

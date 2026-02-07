@@ -17,7 +17,7 @@ export default function RootLayout() {
       <KeyboardProvider>
         <Slot />
         <GlobalAlert />
-        <StatusBar style="auto" />
+        <StatusBar style='auto' />
       </KeyboardProvider>
     </Provider>
   );

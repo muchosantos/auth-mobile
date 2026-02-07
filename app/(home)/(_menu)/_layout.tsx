@@ -11,6 +11,14 @@ export default function MenuStackLayout() {
           presentation: "card",
         }}
       />
+       <Stack.Screen
+        name="editPassword"
+        options={{
+          headerShown: false,
+          animation: "slide_from_right",
+          presentation: "card",
+        }}
+      />
     </Stack>
   );
 }
